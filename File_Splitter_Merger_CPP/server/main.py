@@ -40,6 +40,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+if BASE_DIR not in sys.path:
+    sys.path.insert(0, BASE_DIR)
+
 import cloud
 from cloud import CloudError
 import engine
@@ -317,15 +321,33 @@ async def api_merge(
         for upload in files:
             staged.append(await save_upload(upload, UPLOAD_DIR))
 
-        probe = engine.inspect_fragment(staged[0])
-        original = safe_name(probe.get("original", "reconstructed.bin"))
+        is_legacy = False
+        try:
+            probe = engine.inspect_fragment(staged[0])
+            original = safe_name(probe.get("original", "reconstructed.bin"))
+        except EngineError:
+            if staged[0].endswith(".enc") or any((f.filename or "").endswith(".enc") for f in files):
+                is_legacy = True
+                first_name = safe_name(files[0].filename)
+                if first_name.endswith(".enc"):
+                    first_name = first_name[:-4]
+                if "_part" in first_name:
+                    first_name = first_name.rsplit("_part", 1)[0]
+                original = first_name or "reconstructed.bin"
+            else:
+                raise
+
         out_path = os.path.join(MERGE_DIR, f"{uuid.uuid4().hex[:8]}_{original}")
 
-        result = engine.merge_fragments(staged, out_path, password=password)
+        if is_legacy:
+            result = engine.merge_legacy_enc(staged, out_path, password=password, original=original)
+        else:
+            result = engine.merge_fragments(staged, out_path, password=password)
+
         result["download"] = f"/api/download/merged/{os.path.basename(out_path)}"
         audit("merge", {"file": result["original"],
                         "fragments_used": result["fragments_used"],
-                        "integrity": result["integrity"]})
+                        "integrity": result.get("integrity", "legacy")})
         return {"message": f"Reconstructed '{result['original']}' from "
                            f"{result['fragments_used']} fragments",
                 "result": result}
@@ -612,4 +634,6 @@ app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    host = os.environ.get("HOST", "0.0.0.0")
+    port = int(os.environ.get("PORT", "8000"))
+    uvicorn.run(app, host=host, port=port)

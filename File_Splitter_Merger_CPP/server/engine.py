@@ -479,7 +479,7 @@ def merge_fragments(fragment_paths: Iterable[str], out_path: str,
 # --------------------------------------------------------------------------
 
 def merge_legacy_enc(fragment_paths: Iterable[str], out_path: str,
-                     password: str) -> dict:
+                     password: str, original: str = "") -> dict:
     """Merge OpenSSL-encrypted '.enc' parts produced by the original
     C++ backend (EVP_BytesToKey / AES-256-CBC, concatenated in order)."""
     paths = list(fragment_paths)
@@ -494,7 +494,7 @@ def merge_legacy_enc(fragment_paths: Iterable[str], out_path: str,
             total_hash.update(plain)
             fout.write(plain)
     return {
-        "original": os.path.basename(out_path),
+        "original": original or os.path.basename(out_path),
         "size": os.path.getsize(out_path),
         "fragments_used": len(paths),
         "format": "legacy-openssl",

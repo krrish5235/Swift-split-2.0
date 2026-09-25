@@ -39,7 +39,8 @@ Numbered hex tags float on each shard (hover / click them), key-share shards glo
 
 ```bash
 pip install fastapi uvicorn python-multipart cryptography   # that's everything
-cd server
+cd File_Splitter_Merger_CPP/server
+python -m unittest test_server.py             # run test suite
 python -m uvicorn main:app --port 8000
 # open http://127.0.0.1:8000
 ```
