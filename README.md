@@ -276,9 +276,34 @@ python -m unittest test_server.py -v
 
 ## 📄 License
 
-MIT © 2026 — feel free to use, modify, and distribute.
+Copyright (c) 2026 Krrish Gupta
+
+All Rights Reserved.
+
+This project, including its source code, documentation, designs, and associated
+materials, is the original work of Krrish Gupta.
+
+No permission is granted to copy, modify, distribute, reproduce, publish,
+re-upload, sell, or claim this project or any substantial part of it as your
+own without prior written permission from the copyright holder.
+
+Viewing and studying this repository for personal, educational, or evaluation
+purposes is permitted. Any other use requires explicit permission.
 
 ---
+
+## 📜 Copyright & Usage
+
+Copyright © 2026 Krrish Gupta. All Rights Reserved.
+
+Swift-Split 2.0 is an original project developed by Krrish Gupta.
+
+This repository is publicly available for viewing and evaluation. Copying,
+redistributing, re-uploading, modifying, or presenting this project as your
+own is not permitted without prior written permission.
+
+Original Repository:
+https://github.com/krrish5235/Swift-split-2.0
 
 <div align="center">
 
